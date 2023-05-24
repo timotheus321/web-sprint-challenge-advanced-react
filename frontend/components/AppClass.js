@@ -1,5 +1,5 @@
 import React from 'react'
-
+import axios from 'axios';
 // Suggested initial states
 const initialMessage = ''
 const initialEmail = ''
@@ -95,9 +95,17 @@ export default class AppClass extends React.Component {
     // and change any states accordingly.
     let direction = evt.target.id;
     let newIndex = this.getNextIndex(direction);
+    let message = "";
+    let steps = this.state.steps;
+    if (newIndex !== this.state.index){
+        steps += 1;}
+     else { 
+        message = `You can't go ${direction}`;
+    }
     this.setState({
       index: newIndex,
-      steps: this.state.steps + 1
+      steps: steps,
+      message: message
     });
   }
 
@@ -108,30 +116,7 @@ export default class AppClass extends React.Component {
     });
   }
 
-  // onSubmit = (evt) => {
-  //   // Use a POST request to send a payload to the server.
-  //   evt.preventDefault();
 
-  //   const payload = {
-  //     x: this.getXY().x,
-  //     y: this.getXY().y,
-  //     steps: this.state.steps,
-  //     email: this.state.email
-  //   }
-    
-  //   fetch('http://localhost:9000/api/result', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: JSON.stringify(payload)
-  //   })
-  //   .then(response => response.json())
-  //   .then(data => console.log(data))
-  //   .catch((error) => {
-  //     console.error('Error:', error);
-  //   });
-  // }
   onSubmit = (evt) => {
     // Use a POST request to send a payload to the server.
     evt.preventDefault();
@@ -143,24 +128,28 @@ export default class AppClass extends React.Component {
       email: this.state.email
     }
     
-    fetch('http://localhost:9000/api/result', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+    // fetch('http://localhost:9000/api/result', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify(payload)
+    // })
+    // .then(response => {
+    //   // Check if the response is ok
+    //   if (!response.ok) {
+    //     // If not ok, throw an error
+    //     throw new Error(`HTTP error, status = ${response.status}`);
+    //   }
+    //   return response.json();
+    // })
+    axios.post('http://localhost:9000/api/result', payload)
+    .then(res => {console.log(res)
+     this.setState({message: res.data.message, email: ""})
     })
-    .then(response => {
-      // Check if the response is ok
-      if (!response.ok) {
-        // If not ok, throw an error
-        throw new Error(`HTTP error, status = ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => console.log(data))
     .catch((error) => {
-      console.error('Error:', error);
+      console.log('Error:', {error});
+      this.setState({message: error.response.data.message});
     });
   }
   
@@ -171,7 +160,8 @@ export default class AppClass extends React.Component {
       <div id="wrapper" className={className}>
         <div className="info">
           <h3 id="coordinates">{this.getXYMessage()}</h3>
-          <h3 id="steps">{`You moved ${this.state.steps} times`}</h3>
+          <h3 id="steps">{`You moved ${this.state.steps} ${this.state.steps === 1 ? 'time' : 'times'}`}</h3>
+
         </div>
         <div id="grid">
           {

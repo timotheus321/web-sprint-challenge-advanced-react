@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import axios from 'axios'
+import React, { useState } from 'react';
+import axios from 'axios';
 
 // Suggested initial states
 const initialMessage = ''
@@ -37,41 +37,38 @@ export default function AppFunctional(props) {
     setIndex(initialIndex);
   }
 
+ 
   function getNextIndex(direction) {
-    // This helper takes a direction ("left", "up", etc) and calculates what the next index
-    // of the "B" would be. If the move is impossible because we are at the edge of the grid,
-    // this helper should return the current index unchanged.
-    
-      let newIndex = index;
+    let newIndex = index;
   
-      switch (direction) {
-          case 'left':
-              if (index % 3 !== 0) { // Not on the leftmost column
-                  newIndex = index - 1;
-              }
-              break;
-          case 'right':
-              if (initialIndex % 3 !== 2) { // Not on the rightmost column
-                  newIndex = index + 1;
-              }
-              break;
-          case 'up':
-              if (index >= 3) { // Not on the topmost row
-                  newIndex = index - 3;
-              }
-              break;
-          case 'down':
-              if (index < 6) { // Not on the bottommost row
-                  newIndex = index + 3;
-              }
-              break;
-          default:
-              break;
-      }
-  
-      return newIndex;
-  }
-  
+    switch (direction) {
+        case 'left':
+            if (index % 3 !== 0) { // Not on the leftmost column
+                newIndex = index - 1;
+            }
+            break;
+        case 'right':
+            if (index % 3 !== 2) { // Not on the rightmost column
+                newIndex = index + 1;
+            }
+            break;
+        case 'up':
+            if (index >= 3) { // Not on the topmost row
+                newIndex = index - 3;
+            }
+            break;
+        case 'down':
+            if (index < 6) { // Not on the bottommost row
+                newIndex = index + 3;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return newIndex;
+}
+
   
 
   function move(evt) {
@@ -79,8 +76,14 @@ export default function AppFunctional(props) {
     // and change any states accordingly.
     let direction = evt.target.id;
     let newIndex = getNextIndex(direction);
-    setIndex(newIndex)
-    setSteps(steps + 1)
+  
+    // Check if the index has changed. If it hasn't, we've hit a boundary
+    if(newIndex === index) {
+      setMessage(`You can't go ${direction}`);
+    } else {
+      setIndex(newIndex)
+      setSteps(steps + 1)
+    }
   }
 
   function onChange(evt) {
@@ -90,40 +93,8 @@ export default function AppFunctional(props) {
   }
 
  
-//   function onSubmit(evt) {
-//     // Use a POST request to send a payload to the server.
-//     evt.preventDefault();
 
-//     const payload ={
-//       x: getXY().x,
-//       y: getXY().y,
-//       steps: steps,
-//       email: email
-//     }
-//     fetch('http://localhost:9000/api/result', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(payload)
-//     })
-//     .then(response => {
-//       if (!response.ok) {
-//         if (response.status === 422) {
-//           // You can handle 422 Unprocessable Entity here
-//           // For instance, you can set a state that will show a message to the user
-//           setMessage('There was an error processing your request. Please check your inputs and try again.');
-//         } else {
-//           throw new Error(`HTTP error, status = ${response.status}`);
-//         }
-//       }
-//       return response.json();
-//     })
-//     .then(data => console.log(data))
-//     .catch((error) => {
-//       console.error('Error:', error);
-//     })
-// }
+
 function onSubmit(evt) {
   evt.preventDefault();
 
@@ -142,27 +113,18 @@ function onSubmit(evt) {
     return;
   }
 
-  fetch('http://localhost:9000/api/result', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
+  axios.post('http://localhost:9000/api/result', payload)
+  .then(res => {
+    console.log(res.data.message)
+    setMessage(res.data.message); // set message state
+    setEmail(''); // clear email field
   })
-  .then(response => {
-    if (!response.ok) {
-      if (response.status === 422) {
-        setMessage('There was an error processing your request. Please check your inputs and try again.');
-      } else {
-        throw new Error(`HTTP error, status = ${response.status}`);
-      }
-    }
-    return response.json();
-  })
-  .then(data => console.log(data))
   .catch((error) => {
-    console.error('Error:', error);
-  })
+    console.log('Error:', {error});
+     {
+      setMessage(error.response.data.message);
+    } 
+  });
 }
 
 
@@ -177,7 +139,9 @@ function onSubmit(evt) {
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
-        <h3 id="steps">You moved {steps} times</h3>
+        {/* <h3 id="steps">You moved {steps} times</h3> */}
+        <h3 id="steps">You moved {steps} time{steps !== 1 ? 's' : ''}</h3>
+
       </div>
       <div id="grid">
         {
