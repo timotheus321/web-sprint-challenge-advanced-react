@@ -115,12 +115,12 @@ function onSubmit(evt) {
 
   axios.post('http://localhost:9000/api/result', payload)
   .then(res => {
-    console.log(res.data.message)
-    setMessage(res.data.message); // set message state
-    setEmail(''); // clear email field
+    //console.log(res.data.message)
+    setMessage(res.data.message); 
+    setEmail(''); 
   })
   .catch((error) => {
-    console.log('Error:', {error});
+    //console.log('Error:', {error});
      {
       setMessage(error.response.data.message);
     } 
@@ -138,7 +138,7 @@ function onSubmit(evt) {
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">{getXYMessage()}</h3>
+        <h3 id="coordinates"data-testid="coordinates">{getXYMessage()}</h3>
         {/* <h3 id="steps">You moved {steps} times</h3> */}
         <h3 id="steps">You moved {steps} time{steps !== 1 ? 's' : ''}</h3>
 

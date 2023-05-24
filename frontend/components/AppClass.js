@@ -144,11 +144,11 @@ export default class AppClass extends React.Component {
     //   return response.json();
     // })
     axios.post('http://localhost:9000/api/result', payload)
-    .then(res => {console.log(res)
+    .then(res => { 
      this.setState({message: res.data.message, email: ""})
     })
     .catch((error) => {
-      console.log('Error:', {error});
+      //console.log('Error:', {error});
       this.setState({message: error.response.data.message});
     });
   }
